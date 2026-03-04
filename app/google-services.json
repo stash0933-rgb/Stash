@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "520443677426",
+    "project_id": "stash-be2cc",
+    "storage_bucket": "stash-be2cc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:520443677426:android:8eb3f02b8637e1803b1e6b",
+        "android_client_info": {
+          "package_name": "uk.ac.tees.mad.stash"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDVgocVJ3bia4AioOoQTGxMrUOYZAgnJzM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
