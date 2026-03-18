@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.stash.domain.Repo
+import uk.ac.tees.mad.stash.model.RecordModel
 import uk.ac.tees.mad.stash.model.ResultState
 import uk.ac.tees.mad.stash.model.UserData
 
@@ -20,6 +21,11 @@ class AppViewModel(
 
     private val _loginScreenState = mutableStateOf(LogInScreenState())
     val loginScreenState = _loginScreenState
+    private val _homeScreenState = mutableStateOf(HomeScreenState())
+    val homeScreenState = _homeScreenState
+    private val _recordScreenState = mutableStateOf(RecordScreenState())
+    val recordScreenState = _recordScreenState
+
     val passedEmail: String? = savedStateHandle["email"]
 
 
@@ -80,6 +86,134 @@ class AppViewModel(
             }
         }
     }
+    fun getAllRecords() {
+        viewModelScope.launch {
+            repo.getAllRecords().collect { result ->
+                when (result) {
+
+                    ResultState.Loading -> {
+                        _homeScreenState.value =
+                            HomeScreenState(isLoading = true)
+                    }
+
+                    is ResultState.Succes -> {
+                        _homeScreenState.value =
+                            HomeScreenState(
+                                success = true,
+                                userdata = result.data
+                            )
+                    }
+
+                    is ResultState.error -> {
+                        _homeScreenState.value =
+                            HomeScreenState(
+                                error = result.message
+                            )
+                    }
+                }
+            }
+        }
+    }
+    fun addRecord(record: RecordModel) {
+        viewModelScope.launch {
+            repo.addRecord(record).collect { result ->
+                when (result) {
+
+                    ResultState.Loading -> {
+                        _recordScreenState.value =
+                            RecordScreenState(isLoading = true)
+                    }
+
+                    is ResultState.Succes -> {
+                        _recordScreenState.value =
+                            RecordScreenState(success = true)
+                    }
+
+                    is ResultState.error -> {
+                        _recordScreenState.value =
+                            RecordScreenState(error = result.message)
+                    }
+                }
+            }
+        }
+    }
+    fun updateRecord(record: RecordModel) {
+        viewModelScope.launch {
+            repo.updateRecord(record).collect { result ->
+                when (result) {
+
+                    ResultState.Loading -> {
+                        _recordScreenState.value =
+                            RecordScreenState(isLoading = true)
+                    }
+
+                    is ResultState.Succes -> {
+                        _recordScreenState.value =
+                            RecordScreenState(success = true)
+                    }
+
+                    is ResultState.error -> {
+                        _recordScreenState.value =
+                            RecordScreenState(error = result.message)
+                    }
+                }
+            }
+        }
+    }
+    fun deleteRecord(recordID: String) {
+        viewModelScope.launch {
+            repo.deleteRecord(recordID).collect { result ->
+                when (result) {
+
+                    ResultState.Loading -> {
+                        _recordScreenState.value =
+                            RecordScreenState(isLoading = true)
+                    }
+
+                    is ResultState.Succes -> {
+                        _recordScreenState.value =
+                            RecordScreenState(success = true)
+                    }
+
+                    is ResultState.error -> {
+                        _recordScreenState.value =
+                            RecordScreenState(error = result.message)
+                    }
+                }
+            }
+        }
+    }
+    fun getRecordById(recordID: String) {
+        viewModelScope.launch {
+            repo.getRecordById(recordID).collect { result ->
+                when (result) {
+
+                    ResultState.Loading -> {
+                        _recordScreenState.value =
+                            RecordScreenState(isLoading = true)
+                    }
+
+                    is ResultState.Succes -> {
+                        _recordScreenState.value =
+                            RecordScreenState(
+                                record = result.data,
+                                success = true
+                            )
+                    }
+
+                    is ResultState.error -> {
+                        _recordScreenState.value =
+                            RecordScreenState(error = result.message)
+                    }
+                }
+            }
+        }
+    }
+
+
+
+
+
 }
 data class SignUpScreenState(
     val isLoading: Boolean = false,
@@ -92,5 +226,17 @@ data class LogInScreenState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val userdata: String? = null,
+    val success: Boolean = false
+)
+data class HomeScreenState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val userdata: List<RecordModel>? = emptyList(),
+    val success: Boolean = false
+)
+data class RecordScreenState(
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val record: RecordModel? = null,
     val success: Boolean = false
 )

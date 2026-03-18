@@ -18,8 +18,7 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 fun SignupScreen(
-    onSignupClick: (String, String) -> Unit = { _, _ -> },
-    onNavigateToLogin: () -> Unit = {}
+
 ) {
 
     var email by remember { mutableStateOf("") }
@@ -67,14 +66,7 @@ fun SignupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = confirmPassword,
-            onValueChange = { confirmPassword = it },
-            label = { Text("Confirm Password") },
-            visualTransformation = PasswordVisualTransformation(),
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth()
-        )
+
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -91,14 +83,12 @@ fun SignupScreen(
             onClick = {
                 if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
                     errorMessage = "All fields are required"
-                } else if (password != confirmPassword) {
-                    errorMessage = "Passwords do not match"
-                } else if (password.length < 6) {
+                }  else if (password.length < 6) {
                     errorMessage = "Password must be at least 6 characters"
                 } else {
                     errorMessage = ""
                     isLoading = true
-                    onSignupClick(email, password)
+
                 }
             },
             modifier = Modifier
@@ -119,7 +109,7 @@ fun SignupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onNavigateToLogin) {
+        TextButton({}) {
             Text("Already have an account? Login")
         }
     }

@@ -19,8 +19,7 @@ import androidx.compose.ui.unit.sp
 @Preview(showSystemUi = true)
 @Composable
 fun LoginScreen(
-    onLoginClick: (String, String) -> Unit = { _, _ -> },
-    onNavigateToSignup: () -> Unit = {}
+
 ) {
 
     var email by remember { mutableStateOf("") }
@@ -91,7 +90,7 @@ fun LoginScreen(
                 } else {
                     errorMessage = ""
                     isLoading = true
-                    onLoginClick(email, password)
+
                 }
             },
             modifier = Modifier
@@ -112,7 +111,7 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = onNavigateToSignup) {
+        TextButton(onClick = {}) {
             Text("Don't have an account? Sign Up")
         }
     }
