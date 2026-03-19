@@ -13,21 +13,12 @@ import uk.ac.tees.mad.stash.model.UserData
 class AppViewModel(
     private val repo: Repo,
     private val savedStateHandle: SavedStateHandle
-
 ) : ViewModel() {
 
-    private val _signupScreenState = mutableStateOf(SignUpScreenState())
-    val signupScreenState = _signupScreenState
+    // ---------------- LOGIN ----------------
 
     private val _loginScreenState = mutableStateOf(LogInScreenState())
     val loginScreenState = _loginScreenState
-    private val _homeScreenState = mutableStateOf(HomeScreenState())
-    val homeScreenState = _homeScreenState
-    private val _recordScreenState = mutableStateOf(RecordScreenState())
-    val recordScreenState = _recordScreenState
-
-    val passedEmail: String? = savedStateHandle["email"]
-
 
     fun loginUser(userData: UserData) {
         viewModelScope.launch {
@@ -58,6 +49,15 @@ class AppViewModel(
         }
     }
 
+    fun resetLoginState() {
+        _loginScreenState.value = LogInScreenState()
+    }
+
+    // ---------------- SIGNUP ----------------
+
+    private val _signupScreenState = mutableStateOf(SignUpScreenState())
+    val signupScreenState = _signupScreenState
+
     fun registerUser(userData: UserData) {
         viewModelScope.launch {
             repo.registeruserwithemailandpassword(userData).collect { result ->
@@ -86,6 +86,16 @@ class AppViewModel(
             }
         }
     }
+
+    fun resetSignupState() {
+        _signupScreenState.value = SignUpScreenState()
+    }
+
+    // ---------------- HOME ----------------
+
+    private val _homeScreenState = mutableStateOf(HomeScreenState())
+    val homeScreenState = _homeScreenState
+
     fun getAllRecords() {
         viewModelScope.launch {
             repo.getAllRecords().collect { result ->
@@ -114,6 +124,12 @@ class AppViewModel(
             }
         }
     }
+
+    // ---------------- RECORD ----------------
+
+    private val _recordScreenState = mutableStateOf(RecordScreenState())
+    val recordScreenState = _recordScreenState
+
     fun addRecord(record: RecordModel) {
         viewModelScope.launch {
             repo.addRecord(record).collect { result ->
@@ -137,6 +153,7 @@ class AppViewModel(
             }
         }
     }
+
     fun updateRecord(record: RecordModel) {
         viewModelScope.launch {
             repo.updateRecord(record).collect { result ->
@@ -160,6 +177,7 @@ class AppViewModel(
             }
         }
     }
+
     fun deleteRecord(recordID: String) {
         viewModelScope.launch {
             repo.deleteRecord(recordID).collect { result ->
@@ -183,6 +201,7 @@ class AppViewModel(
             }
         }
     }
+
     fun getRecordById(recordID: String) {
         viewModelScope.launch {
             repo.getRecordById(recordID).collect { result ->
@@ -209,12 +228,10 @@ class AppViewModel(
             }
         }
     }
-
-
-
-
-
 }
+
+// ---------------- STATE CLASSES ----------------
+
 data class SignUpScreenState(
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -228,12 +245,14 @@ data class LogInScreenState(
     val userdata: String? = null,
     val success: Boolean = false
 )
+
 data class HomeScreenState(
     val isLoading: Boolean = false,
     val error: String? = null,
     val userdata: List<RecordModel>? = emptyList(),
     val success: Boolean = false
 )
+
 data class RecordScreenState(
     val isLoading: Boolean = false,
     val error: String? = null,

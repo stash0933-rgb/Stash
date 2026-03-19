@@ -3,13 +3,12 @@ package uk.ac.tees.mad.stash.navigation
 object NavRoutes {
 
     const val LOGIN = "login"
-    const val LOGIN_WITH_ARG = "login?email={email}"
+    const val SIGNUP = "signup"
+    const val HOME = "home"
+    const val ADD_RECORD = "add_record"
+    const val EDIT_RECORD = "edit_record/{recordId}"
 
-    fun loginRoute(email: String? = null): String {
-        return if (email != null) {
-            "login?email=$email"
-        } else {
-            "login"
-        }
+    fun editRecordRoute(recordId: String): String {
+        return "edit_record/$recordId"
     }
 }

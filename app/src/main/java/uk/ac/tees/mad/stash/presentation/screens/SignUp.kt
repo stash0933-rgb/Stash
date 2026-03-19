@@ -16,17 +16,80 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
+import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
+import uk.ac.tees.mad.stash.model.UserData
+import uk.ac.tees.mad.stash.navigation.NavRoutes
+
 @Composable
 fun SignupScreen(
-
+    navController: androidx.navigation.NavController,
+    viewModel: AppViewModel
 ) {
+    val state = viewModel.signupScreenState.value
 
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
-    var isLoading by remember { mutableStateOf(false) }
 
+    // React to state changes (success)
+    LaunchedEffect(state.success) {
+        if (state.success) {
+            // Navigate back to Login with email argument
+            navController.navigate(NavRoutes.LOGIN) {
+                // Clear backstack to avoid loop? Or keep it simple.
+                // popping up to LOGIN route to clear stack but allow back nav if desired.
+                popUpTo(NavRoutes.LOGIN) { inclusive = true }
+            }
+        }
+    }
+
+    SignupContent(
+        email = email,
+        onEmailChange = { email = it },
+        password = password,
+        onPasswordChange = { password = it },
+        confirmPassword = confirmPassword,
+        onConfirmPasswordChange = { confirmPassword = it },
+        isLoading = state.isLoading,
+        errorMessage = if (state.error != null) state.error else errorMessage,
+        onRegisterClick = {
+             if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
+                errorMessage = "All fields are required"
+            } else if (password != confirmPassword) {
+                errorMessage = "Passwords do not match"
+            } else if (password.length < 6) {
+                errorMessage = "Password must be at least 6 characters"
+            } else {
+                errorMessage = ""
+                // Call ViewModel registration
+                viewModel.registerUser(
+                    UserData(
+                        email = email,
+                        password = password
+                    )
+                )
+            }
+        },
+        onLoginClick = {
+            navController.navigate(NavRoutes.LOGIN)
+        }
+    )
+}
+
+@Composable
+fun SignupContent(
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    confirmPassword: String,
+    onConfirmPasswordChange: (String) -> Unit,
+    isLoading: Boolean,
+    errorMessage: String?,
+    onRegisterClick: () -> Unit,
+    onLoginClick: () -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -46,7 +109,7 @@ fun SignupScreen(
 
         OutlinedTextField(
             value = email,
-            onValueChange = { email = it },
+            onValueChange = onEmailChange,
             label = { Text("Email") },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             singleLine = true,
@@ -57,7 +120,7 @@ fun SignupScreen(
 
         OutlinedTextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = onPasswordChange,
             label = { Text("Password") },
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
@@ -66,11 +129,18 @@ fun SignupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-
+        OutlinedTextField(
+            value = confirmPassword,
+            onValueChange = onConfirmPasswordChange,
+            label = { Text("Confirm Password") },
+            visualTransformation = PasswordVisualTransformation(),
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth()
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        if (errorMessage.isNotEmpty()) {
+        if (!errorMessage.isNullOrEmpty()) {
             Text(
                 text = errorMessage,
                 color = Color.Red,
@@ -80,17 +150,7 @@ fun SignupScreen(
         }
 
         Button(
-            onClick = {
-                if (email.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-                    errorMessage = "All fields are required"
-                }  else if (password.length < 6) {
-                    errorMessage = "Password must be at least 6 characters"
-                } else {
-                    errorMessage = ""
-                    isLoading = true
-
-                }
-            },
+            onClick = onRegisterClick,
             modifier = Modifier
                 .fillMaxWidth()
                 .height(50.dp),
@@ -109,7 +169,7 @@ fun SignupScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton({}) {
+        TextButton(onClick = onLoginClick) {
             Text("Already have an account? Login")
         }
     }
@@ -118,5 +178,16 @@ fun SignupScreen(
 @Preview(showBackground = true)
 @Composable
 fun SignupScreenPreview() {
-    SignupScreen()
+    SignupContent(
+        email = "",
+        onEmailChange = {},
+        password = "",
+        onPasswordChange = {},
+        confirmPassword = "",
+        onConfirmPasswordChange = {},
+        isLoading = false,
+        errorMessage = null,
+        onRegisterClick = {},
+        onLoginClick = {}
+    )
 }
