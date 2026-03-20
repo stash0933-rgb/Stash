@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import uk.ac.tees.mad.stash.AppViewModelFactory
 import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
+import uk.ac.tees.mad.stash.presentation.screens.HomeScreen
 
 import uk.ac.tees.mad.stash.presentation.screens.LoginScreen
 import uk.ac.tees.mad.stash.presentation.screens.SignupScreen
@@ -19,7 +20,7 @@ fun StashNavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.LOGIN
+        startDestination = NavRoutes.HOME
     ) {
 
         // ✅ LOGIN SCREEN
@@ -59,10 +60,10 @@ fun StashNavGraph() {
                 viewModel.getAllRecords()
             }
 
-//            HomeScreen(
-//                viewModel = viewModel,
-//                navController = navController
-//            )
+            HomeScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
         }
     }
 }
