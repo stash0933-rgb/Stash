@@ -3,14 +3,17 @@ package uk.ac.tees.mad.stash.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import uk.ac.tees.mad.stash.AppViewModelFactory
 import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
 import uk.ac.tees.mad.stash.presentation.screens.HomeScreen
 
 import uk.ac.tees.mad.stash.presentation.screens.LoginScreen
+import uk.ac.tees.mad.stash.presentation.screens.RecordScreen
 import uk.ac.tees.mad.stash.presentation.screens.SignupScreen
 
 @Composable
@@ -22,8 +25,6 @@ fun StashNavGraph() {
         navController = navController,
         startDestination = NavRoutes.HOME
     ) {
-
-        // ✅ LOGIN SCREEN
         composable(route = NavRoutes.LOGIN) { backStackEntry ->
 
             val viewModel: AppViewModel = viewModel(
@@ -65,5 +66,37 @@ fun StashNavGraph() {
                 navController = navController
             )
         }
+        composable (route = NavRoutes.EDIT_RECORD){
+            backStackEntry ->
+            val viewModel: AppViewModel=viewModel (
+                factory = AppViewModelFactory(backStackEntry )
+            )
+
+
+        }
+        composable(
+            route = NavRoutes.RECORD,
+            arguments = listOf(
+                navArgument("recordId") {
+                    type = NavType.StringType
+                    nullable = true
+                    defaultValue = null
+                }
+            )
+        ) { backStackEntry ->
+
+            val viewModel: AppViewModel = viewModel(
+                factory = AppViewModelFactory(backStackEntry)
+            )
+
+            val recordId = backStackEntry.arguments?.getString("recordId")
+
+            RecordScreen(
+                recordId = recordId,
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+
     }
 }

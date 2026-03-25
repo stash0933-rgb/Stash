@@ -7,8 +7,15 @@ object NavRoutes {
     const val HOME = "home"
     const val ADD_RECORD = "add_record"
     const val EDIT_RECORD = "edit_record/{recordId}"
+    const val RECORD = "record?recordId={recordId}"
+
 
     fun editRecordRoute(recordId: String): String {
         return "edit_record/$recordId"
     }
+    fun recordRoute(recordId: String? = null): String {
+        return if (recordId == null) "record"
+        else "record?recordId=$recordId"
+    }
+
 }
