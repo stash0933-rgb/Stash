@@ -189,4 +189,7 @@ class RepoImpl : Repo {
 
 
 
+    override fun isUserLoggedIn(): Boolean {
+        return FirebaseAuth.getInstance().currentUser != null
+    }
 }

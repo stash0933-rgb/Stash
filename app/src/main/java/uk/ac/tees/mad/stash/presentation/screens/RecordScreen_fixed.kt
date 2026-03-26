@@ -44,7 +44,7 @@ fun RecordScreen(
 
     val isEditMode = recordId != null
 
-    
+
     LaunchedEffect(recordId) {
         if (recordId != null) {
             viewModel.getRecordById(recordId)

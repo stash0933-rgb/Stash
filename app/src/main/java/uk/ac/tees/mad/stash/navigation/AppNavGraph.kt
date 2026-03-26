@@ -15,6 +15,7 @@ import uk.ac.tees.mad.stash.presentation.screens.HomeScreen
 import uk.ac.tees.mad.stash.presentation.screens.LoginScreen
 import uk.ac.tees.mad.stash.presentation.screens.RecordScreen
 import uk.ac.tees.mad.stash.presentation.screens.SignupScreen
+import uk.ac.tees.mad.stash.presentation.screens.SplashScreen
 
 @Composable
 fun StashNavGraph() {
@@ -23,8 +24,18 @@ fun StashNavGraph() {
 
     NavHost(
         navController = navController,
-        startDestination = NavRoutes.HOME
+        startDestination = NavRoutes.SPLASH
     ) {
+        composable(route = NavRoutes.SPLASH) { backStackEntry ->
+            val viewModel: AppViewModel = viewModel(
+                factory = AppViewModelFactory(backStackEntry)
+            )
+            SplashScreen(
+                navController = navController,
+                viewModel = viewModel
+            )
+        }
+
         composable(route = NavRoutes.LOGIN) { backStackEntry ->
 
             val viewModel: AppViewModel = viewModel(

@@ -228,6 +228,11 @@ class AppViewModel(
             }
         }
     }
+
+
+
+    val isUserLoggedIn: Boolean
+        get() = repo.isUserLoggedIn()
 }
 
 // ---------------- STATE CLASSES ----------------
