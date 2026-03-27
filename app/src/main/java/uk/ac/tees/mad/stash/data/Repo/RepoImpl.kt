@@ -12,6 +12,8 @@ import uk.ac.tees.mad.stash.model.UserData
 
 class RepoImpl : Repo {
 
+
+
     override fun registeruserwithemailandpassword(
         userdata: UserData
     ): Flow<ResultState<String>> = callbackFlow {
@@ -30,7 +32,6 @@ class RepoImpl : Repo {
         FirebaseAuth.getInstance()
             .createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-
                 if (task.isSuccessful) {
                     trySend(ResultState.Succes("Registration Successful"))
                 } else {
@@ -44,7 +45,6 @@ class RepoImpl : Repo {
 
         awaitClose { close() }
     }
-
 
     override fun loginuserwithemailandpassword(
         userdata: UserData
@@ -64,7 +64,6 @@ class RepoImpl : Repo {
         FirebaseAuth.getInstance()
             .signInWithEmailAndPassword(email, password)
             .addOnCompleteListener { task ->
-
                 if (task.isSuccessful) {
                     trySend(ResultState.Succes("Login Successful"))
                 } else {
@@ -78,69 +77,56 @@ class RepoImpl : Repo {
 
         awaitClose { close() }
     }
+
+
+
     override fun addRecord(record: RecordModel): Flow<ResultState<String>> = callbackFlow {
+
         trySend(ResultState.Loading)
-        val currentUser = FirebaseAuth.getInstance().currentUser?.uid
 
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-        val userDocRef =
-            FirebaseFirestore.getInstance().collection("Records").document(currentUser.toString())
+        if (uid == null) {
+            trySend(ResultState.error("User not logged in"))
+            close()
+            return@callbackFlow
+        }
 
-        userDocRef.set(record)
+        val docRef = FirebaseFirestore.getInstance()
+            .collection("Users")
+            .document(uid)
+            .collection("Records")
+            .document()
+
+        val newRecord = record.copy(recordID = docRef.id)
+
+        docRef.set(newRecord)
             .addOnSuccessListener {
                 trySend(ResultState.Succes("Record added successfully"))
             }
-            .addOnFailureListener { e ->
-                trySend(ResultState.error("Failed to update record: ${e.localizedMessage}"))
+            .addOnFailureListener {
+                trySend(ResultState.error(it.localizedMessage ?: "Error"))
             }
 
         awaitClose { close() }
     }
-    override fun updateRecord(record: RecordModel): Flow<ResultState<String>> = callbackFlow {
-        trySend(ResultState.Loading)
 
-        val recordRef = FirebaseFirestore.getInstance()
-            .collection("Records")
-            .document(record.recordID)
-
-        recordRef.update(
-            mapOf(
-                "title" to record.title,
-                "value" to record.value
-            )
-        )
-            .addOnSuccessListener {
-                trySend(ResultState.Succes("Record updated successfully"))
-            }
-            .addOnFailureListener { e ->
-                trySend(ResultState.error("Failed to update record: ${e.localizedMessage}"))
-            }
-
-        awaitClose { close() }
-    }
-    override fun deleteRecord(recordID: String): Flow<ResultState<String>> = callbackFlow {
-        trySend(ResultState.Loading)
-
-        val recordRef = FirebaseFirestore.getInstance()
-            .collection("Records")
-            .document(recordID)
-
-        recordRef.delete()
-            .addOnSuccessListener {
-                trySend(ResultState.Succes("Record deleted successfully"))
-            }
-            .addOnFailureListener { e ->
-                trySend(ResultState.error("Failed to delete record: ${e.localizedMessage}"))
-            }
-
-        awaitClose { close() }
-    }
     override fun getAllRecords(): Flow<ResultState<List<RecordModel>>> = callbackFlow {
+
         trySend(ResultState.Loading)
 
-        val firestore = FirebaseFirestore.getInstance()
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
 
-        val listener = firestore.collection("Records")
+        if (uid == null) {
+            trySend(ResultState.error("User not logged in"))
+            close()
+            return@callbackFlow
+        }
+
+        val listener = FirebaseFirestore.getInstance()
+            .collection("Users")
+            .document(uid)
+            .collection("Records")
             .addSnapshotListener { snapshot, error ->
 
                 if (error != null) {
@@ -149,7 +135,8 @@ class RepoImpl : Repo {
                 }
 
                 val records = snapshot?.documents?.mapNotNull { doc ->
-                    doc.toObject(RecordModel::class.java)
+                    val record = doc.toObject(RecordModel::class.java)
+                    record?.copy(recordID = doc.id)
                 } ?: emptyList()
 
                 trySend(ResultState.Succes(records))
@@ -157,10 +144,22 @@ class RepoImpl : Repo {
 
         awaitClose { listener.remove() }
     }
+
     override fun getRecordById(recordID: String): Flow<ResultState<RecordModel>> = callbackFlow {
+
         trySend(ResultState.Loading)
 
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid == null) {
+            trySend(ResultState.error("User not logged in"))
+            close()
+            return@callbackFlow
+        }
+
         val docRef = FirebaseFirestore.getInstance()
+            .collection("Users")
+            .document(uid)
             .collection("Records")
             .document(recordID)
 
@@ -174,7 +173,7 @@ class RepoImpl : Repo {
             if (snapshot != null && snapshot.exists()) {
                 val record = snapshot.toObject(RecordModel::class.java)
                 if (record != null) {
-                    trySend(ResultState.Succes(record))
+                    trySend(ResultState.Succes(record.copy(recordID = snapshot.id)))
                 } else {
                     trySend(ResultState.error("Record parsing failed"))
                 }
@@ -186,6 +185,66 @@ class RepoImpl : Repo {
         awaitClose { listener.remove() }
     }
 
+    override fun updateRecord(record: RecordModel): Flow<ResultState<String>> = callbackFlow {
+
+        trySend(ResultState.Loading)
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid == null) {
+            trySend(ResultState.error("User not logged in"))
+            close()
+            return@callbackFlow
+        }
+
+        FirebaseFirestore.getInstance()
+            .collection("Users")
+            .document(uid)
+            .collection("Records")
+            .document(record.recordID)
+            .update(
+                mapOf(
+                    "title" to record.title,
+                    "value" to record.value
+                )
+            )
+            .addOnSuccessListener {
+                trySend(ResultState.Succes("Record updated successfully"))
+            }
+            .addOnFailureListener {
+                trySend(ResultState.error(it.localizedMessage ?: "Error"))
+            }
+
+        awaitClose { close() }
+    }
+
+    override fun deleteRecord(recordID: String): Flow<ResultState<String>> = callbackFlow {
+
+        trySend(ResultState.Loading)
+
+        val uid = FirebaseAuth.getInstance().currentUser?.uid
+
+        if (uid == null) {
+            trySend(ResultState.error("User not logged in"))
+            close()
+            return@callbackFlow
+        }
+
+        FirebaseFirestore.getInstance()
+            .collection("Users")
+            .document(uid)
+            .collection("Records")
+            .document(recordID)
+            .delete()
+            .addOnSuccessListener {
+                trySend(ResultState.Succes("Record deleted successfully"))
+            }
+            .addOnFailureListener {
+                trySend(ResultState.error(it.localizedMessage ?: "Error"))
+            }
+
+        awaitClose { close() }
+    }
 
 
 

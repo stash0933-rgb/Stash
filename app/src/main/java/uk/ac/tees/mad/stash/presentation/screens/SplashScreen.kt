@@ -24,7 +24,7 @@ fun SplashScreen(
     viewModel: AppViewModel
 ) {
     LaunchedEffect(Unit) {
-        delay(1000) // Optional: Give user a moment to see splash
+        delay(1000)
         if (viewModel.isUserLoggedIn) {
             navController.navigate(NavRoutes.HOME) {
                 popUpTo(NavRoutes.SPLASH) { inclusive = true }
@@ -38,7 +38,7 @@ fun SplashScreen(
 
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Image(
-            painter = painterResource(id = uk.ac.tees.mad.stash.R.mipmap.ic_launcher),
+            painter = painterResource(id = uk.ac.tees.mad.stash.R.drawable.stashlogo),
             contentDescription = "App Logo"
         )
     }

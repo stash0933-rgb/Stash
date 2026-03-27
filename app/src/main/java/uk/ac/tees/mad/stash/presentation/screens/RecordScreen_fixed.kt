@@ -59,9 +59,9 @@ fun RecordScreen(
         }
     }
 
-    // Navigate back on success
     LaunchedEffect(state.success) {
         if (state.success) {
+            viewModel.resetRecordState()
             navController.popBackStack()
         }
     }

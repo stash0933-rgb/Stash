@@ -215,10 +215,10 @@ class AppViewModel(
                     is ResultState.Succes -> {
                         _recordScreenState.value =
                             RecordScreenState(
-                                record = result.data,
-                                success = true
+                                record = result.data
                             )
                     }
+
 
                     is ResultState.error -> {
                         _recordScreenState.value =
@@ -233,6 +233,10 @@ class AppViewModel(
 
     val isUserLoggedIn: Boolean
         get() = repo.isUserLoggedIn()
+    fun resetRecordState() {
+        _recordScreenState.value = RecordScreenState()
+    }
+
 }
 
 // ---------------- STATE CLASSES ----------------

@@ -103,10 +103,10 @@ fun HomeScreen(
     HomeScreenContent(
         state = state,
         onRecordClick = { record ->
-            navController.navigate("record/${record.recordID}")
+            navController.navigate(uk.ac.tees.mad.stash.navigation.NavRoutes.recordRoute(record.recordID))
         },
         onAddClick = {
-            navController.navigate("record")
+            navController.navigate(uk.ac.tees.mad.stash.navigation.NavRoutes.recordRoute(null))
         }
     )
 }
