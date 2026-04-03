@@ -1,35 +1,54 @@
 package uk.ac.tees.mad.stash.presentation.screens
 
-
-
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import uk.ac.tees.mad.stash.model.RecordModel
+import uk.ac.tees.mad.stash.navigation.NavRoutes
 import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
 import uk.ac.tees.mad.stash.presentation.ViewModel.HomeScreenState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreenContent(
     state: HomeScreenState,
     onRecordClick: (RecordModel) -> Unit,
-    onAddClick: () -> Unit
+    onAddClick: () -> Unit,
+    onSettingsClick: () -> Unit
 ) {
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Stash") },
+                actions = {
+                    IconButton(onClick = onSettingsClick) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Settings"
+                        )
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddClick
             ) {
-                Icon(Icons.Default.Add, contentDescription = "Add Record")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Record"
+                )
             }
         }
     ) { padding ->
@@ -40,7 +59,7 @@ fun HomeScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     CircularProgressIndicator()
                 }
@@ -51,7 +70,7 @@ fun HomeScreenContent(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding),
-                    contentAlignment = androidx.compose.ui.Alignment.Center
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(text = state.error)
                 }
@@ -92,6 +111,7 @@ fun HomeScreenContent(
         }
     }
 }
+
 @Composable
 fun HomeScreen(
     viewModel: AppViewModel,
@@ -103,13 +123,21 @@ fun HomeScreen(
     HomeScreenContent(
         state = state,
         onRecordClick = { record ->
-            navController.navigate(uk.ac.tees.mad.stash.navigation.NavRoutes.recordRoute(record.recordID))
+            navController.navigate(
+                NavRoutes.recordRoute(record.recordID)
+            )
         },
         onAddClick = {
-            navController.navigate(uk.ac.tees.mad.stash.navigation.NavRoutes.recordRoute(null))
+            navController.navigate(
+                NavRoutes.recordRoute(null)
+            )
+        },
+        onSettingsClick = {
+            navController.navigate(NavRoutes.SETTINGS)
         }
     )
 }
+
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
@@ -125,6 +153,7 @@ fun HomeScreenPreview() {
     HomeScreenContent(
         state = fakeState,
         onRecordClick = {},
-        onAddClick = {}
+        onAddClick = {},
+        onSettingsClick = {}
     )
 }

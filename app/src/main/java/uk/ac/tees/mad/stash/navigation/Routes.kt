@@ -9,6 +9,11 @@ object NavRoutes {
     const val ADD_RECORD = "add_record"
     const val EDIT_RECORD = "edit_record/{recordId}"
     const val RECORD = "record?recordId={recordId}"
+    const val SETTINGS = "settings"
+    const val SECURE_UNLOCK = "secure_unlock"
+
+
+
 
 
     fun editRecordRoute(recordId: String): String {

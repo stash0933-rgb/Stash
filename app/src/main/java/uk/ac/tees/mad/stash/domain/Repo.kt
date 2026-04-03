@@ -15,5 +15,6 @@ interface Repo {
     fun deleteRecord(recordID: String): Flow<ResultState<String>>
     fun getRecordById(recordID: String): Flow<ResultState<RecordModel>>
     fun isUserLoggedIn(): Boolean
+    fun logoutUser()
 
 }

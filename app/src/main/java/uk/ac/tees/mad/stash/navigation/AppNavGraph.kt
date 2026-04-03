@@ -14,6 +14,8 @@ import uk.ac.tees.mad.stash.presentation.screens.HomeScreen
 
 import uk.ac.tees.mad.stash.presentation.screens.LoginScreen
 import uk.ac.tees.mad.stash.presentation.screens.RecordScreen
+import uk.ac.tees.mad.stash.presentation.screens.SecureUnlockScreen
+import uk.ac.tees.mad.stash.presentation.screens.SettingsScreen
 import uk.ac.tees.mad.stash.presentation.screens.SignupScreen
 import uk.ac.tees.mad.stash.presentation.screens.SplashScreen
 
@@ -108,6 +110,22 @@ fun StashNavGraph() {
                 navController = navController
             )
         }
+        composable(route = NavRoutes.SETTINGS) { backStackEntry ->
+
+            val viewModel: AppViewModel = viewModel(
+                factory = AppViewModelFactory(backStackEntry)
+            )
+
+            SettingsScreen(
+                viewModel = viewModel,
+                navController = navController
+            )
+        }
+        composable(NavRoutes.SECURE_UNLOCK) {
+            SecureUnlockScreen(navController)
+        }
+
+
 
     }
 }

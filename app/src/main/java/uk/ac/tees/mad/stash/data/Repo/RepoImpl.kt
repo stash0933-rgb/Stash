@@ -284,4 +284,8 @@ class RepoImpl : Repo {
     override fun isUserLoggedIn(): Boolean {
         return auth.currentUser != null
     }
+    override fun logoutUser() {
+        auth.signOut()
+    }
+
 }

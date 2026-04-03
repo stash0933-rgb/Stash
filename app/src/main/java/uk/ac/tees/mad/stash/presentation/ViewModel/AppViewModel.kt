@@ -236,6 +236,10 @@ class AppViewModel(
     fun resetRecordState() {
         _recordScreenState.value = RecordScreenState()
     }
+    fun logoutUser() {
+        repo.logoutUser()
+    }
+
 
 }
 
