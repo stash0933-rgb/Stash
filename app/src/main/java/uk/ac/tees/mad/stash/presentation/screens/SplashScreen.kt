@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -23,13 +25,25 @@ fun SplashScreen(
     navController: NavController,
     viewModel: AppViewModel
 ) {
+    val biometricEnabled by viewModel.biometricEnabled.collectAsState()
+
     LaunchedEffect(Unit) {
         delay(1000)
+        
         if (viewModel.isUserLoggedIn) {
-            navController.navigate(NavRoutes.HOME) {
-                popUpTo(NavRoutes.SPLASH) { inclusive = true }
+            if (biometricEnabled) {
+                // Navigate to SecureUnlock if biometric is enabled
+                navController.navigate(NavRoutes.SECURE_UNLOCK) {
+                    popUpTo(NavRoutes.SPLASH) { inclusive = true }
+                }
+            } else {
+                // Navigate directly to Home if biometric is disabled
+                navController.navigate(NavRoutes.HOME) {
+                    popUpTo(NavRoutes.SPLASH) { inclusive = true }
+                }
             }
         } else {
+            // Navigate to Login if not logged in
             navController.navigate(NavRoutes.LOGIN) {
                 popUpTo(NavRoutes.SPLASH) { inclusive = true }
             }

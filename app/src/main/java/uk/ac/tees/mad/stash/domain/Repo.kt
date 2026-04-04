@@ -17,4 +17,10 @@ interface Repo {
     fun isUserLoggedIn(): Boolean
     fun logoutUser()
 
+    // Preferences
+    fun getBiometricEnabled(): Flow<Boolean>
+    suspend fun setBiometricEnabled(enabled: Boolean)
+    fun getLastActiveTimestamp(): Flow<Long>
+    suspend fun setLastActiveTimestamp(timestamp: Long)
+
 }

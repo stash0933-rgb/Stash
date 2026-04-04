@@ -8,6 +8,9 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -119,6 +122,20 @@ fun HomeScreen(
 ) {
 
     val state = viewModel.homeScreenState.value
+    val biometricEnabled by viewModel.biometricEnabled.collectAsState()
+
+    // Check session timeout
+    LaunchedEffect(Unit) {
+        if (biometricEnabled && viewModel.shouldRequireReauth()) {
+            // Session expired, navigate to SecureUnlock
+            navController.navigate(NavRoutes.SECURE_UNLOCK) {
+                popUpTo(NavRoutes.HOME) { inclusive = true }
+            }
+        } else {
+            // Update last active timestamp
+            viewModel.updateLastActiveTimestamp()
+        }
+    }
 
     HomeScreenContent(
         state = state,

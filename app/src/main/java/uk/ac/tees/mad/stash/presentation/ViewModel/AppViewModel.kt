@@ -4,6 +4,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.stash.domain.Repo
 import uk.ac.tees.mad.stash.model.RecordModel
@@ -14,6 +17,41 @@ class AppViewModel(
     private val repo: Repo,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    // ---------------- PREFERENCES ----------------
+
+    val biometricEnabled: StateFlow<Boolean> = repo.getBiometricEnabled()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = false
+        )
+
+    private val lastActiveTimestamp: StateFlow<Long> = repo.getLastActiveTimestamp()
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = 0L
+        )
+
+    fun toggleBiometric(enabled: Boolean) {
+        viewModelScope.launch {
+            repo.setBiometricEnabled(enabled)
+        }
+    }
+
+    fun updateLastActiveTimestamp() {
+        viewModelScope.launch {
+            repo.setLastActiveTimestamp(System.currentTimeMillis())
+        }
+    }
+
+    fun shouldRequireReauth(): Boolean {
+        val currentTime = System.currentTimeMillis()
+        val lastActive = lastActiveTimestamp.value
+        val fiveMinutesInMillis = 5 * 60 * 1000L // 5 minutes
+        return (currentTime - lastActive) > fiveMinutesInMillis
+    }
 
     // ---------------- LOGIN ----------------
 

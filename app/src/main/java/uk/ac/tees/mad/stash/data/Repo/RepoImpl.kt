@@ -288,4 +288,22 @@ class RepoImpl : Repo {
         auth.signOut()
     }
 
+    // ---------------- PREFERENCES ----------------
+
+    override fun getBiometricEnabled(): Flow<Boolean> {
+        return StashApp.preferencesManager.biometricEnabled
+    }
+
+    override suspend fun setBiometricEnabled(enabled: Boolean) {
+        StashApp.preferencesManager.setBiometricEnabled(enabled)
+    }
+
+    override fun getLastActiveTimestamp(): Flow<Long> {
+        return StashApp.preferencesManager.lastActiveTimestamp
+    }
+
+    override suspend fun setLastActiveTimestamp(timestamp: Long) {
+        StashApp.preferencesManager.setLastActiveTimestamp(timestamp)
+    }
+
 }
