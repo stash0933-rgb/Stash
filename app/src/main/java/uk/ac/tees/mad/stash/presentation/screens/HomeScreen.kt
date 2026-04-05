@@ -123,18 +123,15 @@ fun HomeScreen(
 
     val state = viewModel.homeScreenState.value
     val biometricEnabled by viewModel.biometricEnabled.collectAsState()
+    
+    // Get the previous route to check if we came from SecureUnlock
+    val previousRoute = navController.previousBackStackEntry?.destination?.route
 
-    // Check session timeout
+    // Check session timeout ONLY if not coming from SecureUnlock
+    // Check session timeout - DISABLED (User request: Only ask on restart)
     LaunchedEffect(Unit) {
-        if (biometricEnabled && viewModel.shouldRequireReauth()) {
-            // Session expired, navigate to SecureUnlock
-            navController.navigate(NavRoutes.SECURE_UNLOCK) {
-                popUpTo(NavRoutes.HOME) { inclusive = true }
-            }
-        } else {
-            // Update last active timestamp
-            viewModel.updateLastActiveTimestamp()
-        }
+        // Just keep the timestamp updated
+        viewModel.updateLastActiveTimestamp()
     }
 
     HomeScreenContent(

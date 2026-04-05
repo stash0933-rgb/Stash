@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import kotlinx.coroutines.flow.first
 import uk.ac.tees.mad.stash.navigation.NavRoutes
 import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
 import kotlinx.coroutines.delay
@@ -25,10 +26,12 @@ fun SplashScreen(
     navController: NavController,
     viewModel: AppViewModel
 ) {
-    val biometricEnabled by viewModel.biometricEnabled.collectAsState()
-
     LaunchedEffect(Unit) {
         delay(1000)
+        
+        // Get biometric preference value directly from DataStore (suspend)
+        // This avoids the race condition where StateFlow.value is false (initial)
+        val biometricEnabled = viewModel.getBiometricEnabledSuspend()
         
         if (viewModel.isUserLoggedIn) {
             if (biometricEnabled) {

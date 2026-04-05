@@ -121,8 +121,18 @@ fun StashNavGraph() {
                 navController = navController
             )
         }
-        composable(NavRoutes.SECURE_UNLOCK) {
-            SecureUnlockScreen(navController)
+        composable(NavRoutes.SECURE_UNLOCK) { backStackEntry ->
+            val viewModel: AppViewModel = viewModel(
+                factory = AppViewModelFactory(backStackEntry)
+            )
+            
+            SecureUnlockScreen(
+                navController = navController,
+                onAuthSuccess = {
+                    // Update timestamp synchronously (suspend) after successful authentication
+                    viewModel.updateLastActiveTimestampSuspend()
+                }
+            )
         }
 
 

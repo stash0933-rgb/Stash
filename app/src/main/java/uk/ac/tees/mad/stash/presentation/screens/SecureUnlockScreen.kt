@@ -1,9 +1,11 @@
 package uk.ac.tees.mad.stash.presentation.screens
 
 import android.content.Context
+import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,7 +22,8 @@ import uk.ac.tees.mad.stash.navigation.NavRoutes
 
 @Composable
 fun SecureUnlockScreen(
-    navController: NavController
+    navController: NavController,
+    onAuthSuccess: suspend () -> Unit = {}
 ) {
 
     val context = LocalContext.current
@@ -28,14 +31,14 @@ fun SecureUnlockScreen(
 
     var authState by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
+    var promptShown by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
+        Log.d("SecureUnlock", "Screen launched")
 
         if (activity == null) {
-            // If not in FragmentActivity context, skip to home
-            navController.navigate(NavRoutes.HOME) {
-                popUpTo(NavRoutes.SECURE_UNLOCK) { inclusive = true }
-            }
+            Log.e("SecureUnlock", "Activity is null - cannot show biometric prompt")
+            errorMessage = "Unable to initialize biometric authentication"
             return@LaunchedEffect
         }
 
@@ -58,6 +61,7 @@ fun SecureUnlockScreen(
                     override fun onAuthenticationSucceeded(
                         result: BiometricPrompt.AuthenticationResult
                     ) {
+                        Log.d("SecureUnlock", "Authentication succeeded")
                         authState = true
                     }
 
@@ -65,6 +69,7 @@ fun SecureUnlockScreen(
                         errorCode: Int,
                         errString: CharSequence
                     ) {
+                        Log.d("SecureUnlock", "Authentication error: $errorCode - $errString")
                         if (errorCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
                             errorCode == BiometricPrompt.ERROR_USER_CANCELED
                         ) {
@@ -75,6 +80,7 @@ fun SecureUnlockScreen(
                     }
 
                     override fun onAuthenticationFailed() {
+                        Log.d("SecureUnlock", "Authentication failed")
                         errorMessage = "Authentication failed. Please try again."
                     }
                 }
@@ -89,10 +95,13 @@ fun SecureUnlockScreen(
                 )
                 .build()
 
+            Log.d("SecureUnlock", "Showing biometric prompt")
             biometricPrompt.authenticate(promptInfo)
+            promptShown = true
 
         } else {
             // Biometric not available, show error
+            Log.e("SecureUnlock", "Biometric not available: $canAuthenticate")
             errorMessage = when (canAuthenticate) {
                 BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE ->
                     "No biometric hardware available"
@@ -105,8 +114,11 @@ fun SecureUnlockScreen(
         }
     }
 
+    // Navigate to Home on successful authentication
     if (authState) {
         LaunchedEffect(Unit) {
+            Log.d("SecureUnlock", "Navigating to HOME after successful auth")
+            onAuthSuccess() // Callback to update timestamp
             navController.navigate(NavRoutes.HOME) {
                 popUpTo(NavRoutes.SECURE_UNLOCK) { inclusive = true }
             }
@@ -116,6 +128,7 @@ fun SecureUnlockScreen(
     SecureUnlockContent(
         errorMessage = errorMessage,
         onRetry = {
+            Log.d("SecureUnlock", "Retry clicked")
             errorMessage = null
             // Restart the screen by navigating to itself
             navController.navigate(NavRoutes.SECURE_UNLOCK) {
@@ -123,6 +136,7 @@ fun SecureUnlockScreen(
             }
         },
         onCancel = {
+            Log.d("SecureUnlock", "Cancel clicked")
             navController.navigate(NavRoutes.LOGIN) {
                 popUpTo(0)
             }
@@ -150,7 +164,7 @@ fun SecureUnlockContent(
 
             if (errorMessage != null) {
                 Icon(
-                    imageVector = androidx.compose.material.icons.Icons.Default.Warning,
+                    imageVector = Icons.Default.Warning,
                     contentDescription = "Error",
                     tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(64.dp)

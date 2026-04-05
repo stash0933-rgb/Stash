@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import uk.ac.tees.mad.stash.domain.Repo
@@ -35,15 +36,24 @@ class AppViewModel(
         )
 
     fun toggleBiometric(enabled: Boolean) {
-        viewModelScope.launch {
+        viewModelScope.launch(kotlinx.coroutines.NonCancellable) {
             repo.setBiometricEnabled(enabled)
         }
     }
 
     fun updateLastActiveTimestamp() {
-        viewModelScope.launch {
+        viewModelScope.launch(kotlinx.coroutines.NonCancellable) {
             repo.setLastActiveTimestamp(System.currentTimeMillis())
         }
+    }
+
+    suspend fun updateLastActiveTimestampSuspend() {
+        repo.setLastActiveTimestamp(System.currentTimeMillis())
+    }
+
+    suspend fun getBiometricEnabledSuspend(): Boolean {
+        // Read directly from Repo Flow to ensure we get the disk value, not StateFlow initial value
+        return repo.getBiometricEnabled().first()
     }
 
     fun shouldRequireReauth(): Boolean {
@@ -69,6 +79,7 @@ class AppViewModel(
                     }
 
                     is ResultState.Succes -> {
+                        updateLastActiveTimestamp()
                         _loginScreenState.value =
                             LogInScreenState(
                                 success = true,
@@ -107,6 +118,7 @@ class AppViewModel(
                     }
 
                     is ResultState.Succes -> {
+                        updateLastActiveTimestamp()
                         _signupScreenState.value =
                             SignUpScreenState(
                                 success = true,
