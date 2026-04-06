@@ -73,7 +73,7 @@ dependencies {
 
     ksp("androidx.room:room-compiler:$room_version")
     implementation ("androidx.biometric:biometric:1.1.0")
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
 
 
 }
