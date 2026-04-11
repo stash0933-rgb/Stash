@@ -78,7 +78,9 @@ fun SplashContent() {
                 fontSize = 35.sp,
                 color = colorResource(R.color.text_primary),
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.Monospace
+
+                fontFamily = FontFamily.Monospace,
+                style = MaterialTheme.typography.headlineLarge
             )
         }
     }

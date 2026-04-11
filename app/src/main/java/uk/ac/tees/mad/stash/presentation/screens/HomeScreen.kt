@@ -3,6 +3,7 @@ package uk.ac.tees.mad.stash.presentation.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
@@ -13,9 +14,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import uk.ac.tees.mad.stash.R
 import uk.ac.tees.mad.stash.model.RecordModel
 import uk.ac.tees.mad.stash.navigation.NavRoutes
 import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
@@ -31,9 +34,22 @@ fun HomeScreenContent(
 ) {
 
     Scaffold(
+        containerColor = colorResource(R.color.background_main),
+
         topBar = {
             TopAppBar(
-                title = { Text("Stash") },
+                title = {
+                    Text(
+                        text = "Stash",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = colorResource(R.color.text_white)
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = colorResource(R.color.primary_dark_navy),
+                    titleContentColor = colorResource(R.color.text_white),
+                    actionIconContentColor = colorResource(R.color.text_white)
+                ),
                 actions = {
                     IconButton(onClick = onSettingsClick) {
                         Icon(
@@ -44,9 +60,12 @@ fun HomeScreenContent(
                 }
             )
         },
+
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddClick
+                onClick = onAddClick,
+                containerColor = colorResource(R.color.primary_navy),
+                contentColor = colorResource(R.color.text_white)
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -57,6 +76,8 @@ fun HomeScreenContent(
     ) { padding ->
 
         when {
+
+
             state.isLoading -> {
                 Box(
                     modifier = Modifier
@@ -64,7 +85,9 @@ fun HomeScreenContent(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(
+                        color = colorResource(R.color.primary_navy)
+                    )
                 }
             }
 
@@ -75,36 +98,72 @@ fun HomeScreenContent(
                         .padding(padding),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = state.error)
+                    Text(
+                        text = state.error,
+                        color = colorResource(R.color.error_red),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
                 }
             }
+
+
+            state.userdata.isNullOrEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        text = "No records yet.\nTap + to add securely.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = colorResource(R.color.text_secondary)
+                    )
+                }
+            }
+
 
             else -> {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(padding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    items(state.userdata ?: emptyList()) { record ->
+
+                    items(state.userdata!!) { record ->
 
                         Card(
-                            onClick = { onRecordClick(record) }
+                            onClick = { onRecordClick(record) },
+                            modifier = Modifier.height(120.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = colorResource(R.color.background_card)
+                            ),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 6.dp
+                            ),
+                            shape = RoundedCornerShape(16.dp)
                         ) {
+
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(16.dp)
+                                    .padding(18.dp)
                             ) {
+
                                 Text(
                                     text = record.title,
-                                    style = MaterialTheme.typography.titleMedium
+                                    style = MaterialTheme.typography.titleMedium,
+                                    color = colorResource(R.color.text_primary)
                                 )
-                                Spacer(modifier = Modifier.height(4.dp))
+
+                                Spacer(modifier = Modifier.height(6.dp))
+
                                 Text(
                                     text = record.value,
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colorResource(R.color.text_secondary)
                                 )
                             }
                         }
@@ -115,6 +174,7 @@ fun HomeScreenContent(
     }
 }
 
+
 @Composable
 fun HomeScreen(
     viewModel: AppViewModel,
@@ -124,13 +184,9 @@ fun HomeScreen(
     val state = viewModel.homeScreenState.value
     val biometricEnabled by viewModel.biometricEnabled.collectAsState()
     
-    // Get the previous route to check if we came from SecureUnlock
-    val previousRoute = navController.previousBackStackEntry?.destination?.route
 
-    // Check session timeout ONLY if not coming from SecureUnlock
-    // Check session timeout - DISABLED (User request: Only ask on restart)
     LaunchedEffect(Unit) {
-        // Just keep the timestamp updated
+
         viewModel.updateLastActiveTimestamp()
     }
 
