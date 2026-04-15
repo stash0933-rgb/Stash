@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -12,12 +13,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import uk.ac.tees.mad.stash.R
 import uk.ac.tees.mad.stash.navigation.NavRoutes
 
 @Composable
@@ -151,73 +154,110 @@ fun SecureUnlockContent(
     onCancel: () -> Unit = {}
 ) {
 
-    Scaffold { padding ->
+    Scaffold(
+        containerColor = colorResource(R.color.background_main)
+    ) { padding ->
 
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            contentAlignment = Alignment.Center
         ) {
 
-            if (errorMessage != null) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Error",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(64.dp)
-                )
+            Card(
+                shape = RoundedCornerShape(22.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = colorResource(R.color.background_card)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 10.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Authentication Error",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = MaterialTheme.colorScheme.error
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = errorMessage,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                Column(
+                    modifier = Modifier.padding(28.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    OutlinedButton(onClick = onCancel) {
-                        Text("Cancel")
-                    }
-                    Button(onClick = onRetry) {
-                        Text("Retry")
+
+                    if (errorMessage != null) {
+
+                        Icon(
+                            imageVector = Icons.Default.Warning,
+                            contentDescription = "Error",
+                            tint = colorResource(R.color.error_red),
+                            modifier = Modifier.size(64.dp)
+                        )
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        Text(
+                            text = "Authentication Failed",
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = colorResource(R.color.primary_dark_navy)
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = errorMessage,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colorResource(R.color.text_secondary)
+                        )
+
+                        Spacer(modifier = Modifier.height(28.dp))
+
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+
+                            OutlinedButton(
+                                onClick = onCancel,
+                                shape = RoundedCornerShape(14.dp)
+                            ) {
+                                Text("Cancel")
+                            }
+
+                            Button(
+                                onClick = onRetry,
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = colorResource(R.color.primary_dark_navy),
+                                    contentColor = colorResource(R.color.text_white)
+                                )
+                            ) {
+                                Text("Retry")
+                            }
+                        }
+
+                    } else {
+
+                        Text(
+                            text = "Secure Unlock",
+                            style = MaterialTheme.typography.headlineMedium,
+                            color = colorResource(R.color.primary_dark_navy)
+                        )
+
+                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Text(
+                            text = "Authenticate using fingerprint, face recognition, or device PIN to access your secure vault.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = colorResource(R.color.text_secondary)
+                        )
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        CircularProgressIndicator(
+                            color = colorResource(R.color.primary_dark_navy)
+                        )
                     }
                 }
-            } else {
-                Text(
-                    text = "Secure Unlock Required",
-                    style = MaterialTheme.typography.headlineSmall
-                )
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                Text(
-                    text = "Please authenticate using fingerprint, face recognition, or device PIN to continue.",
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                CircularProgressIndicator()
             }
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

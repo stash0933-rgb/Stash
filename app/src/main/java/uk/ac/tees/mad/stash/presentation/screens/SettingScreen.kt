@@ -3,7 +3,9 @@ package uk.ac.tees.mad.stash.presentation.screens
 
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -11,9 +13,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import uk.ac.tees.mad.stash.R
 import uk.ac.tees.mad.stash.navigation.NavRoutes
 import uk.ac.tees.mad.stash.presentation.ViewModel.AppViewModel
 
@@ -51,17 +55,26 @@ fun SettingsScreenContent(
 ) {
 
     Scaffold(
+        containerColor = colorResource(R.color.background_main),
+
         topBar = {
             TopAppBar(
-                title = { Text("Settings") },
+                title = {
+                    Text(
+                        "Settings",
+                        color = colorResource(R.color.text_primary)
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = "Back"
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+
                         )
                     }
-                }
+                },
+
             )
         }
     ) { padding ->
@@ -71,57 +84,107 @@ fun SettingsScreenContent(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(24.dp)
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
 
-            // Security Section
-            Text(
-                text = "Security",
-                style = MaterialTheme.typography.titleMedium
-            )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = colorResource(R.color.background_card)
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
-                Column(modifier = Modifier.weight(1f)) {
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
                     Text(
-                        text = "Enable Biometric Lock",
-                        style = MaterialTheme.typography.bodyLarge
+                        text = "Security",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colorResource(R.color.primary_dark_navy)
                     )
-                    Text(
-                        text = "Require fingerprint or face unlock when opening app",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+
+                        Column(modifier = Modifier.weight(1f)) {
+
+                            Text(
+                                text = "Enable Biometric Lock",
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = colorResource(R.color.text_primary)
+                            )
+
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            Text(
+                                text = "Require fingerprint or face unlock when opening app",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = colorResource(R.color.text_secondary)
+                            )
+                        }
+
+                        Switch(
+                            checked = biometricEnabled,
+                            onCheckedChange = onBiometricToggle,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = colorResource(R.color.primary_dark_navy),
+                                checkedTrackColor = colorResource(R.color.primary_light_navy)
+                            )
+                        )
+                    }
                 }
-                Switch(
-                    checked = biometricEnabled,
-                    onCheckedChange = onBiometricToggle
-                )
             }
 
-            Divider()
 
-            // Account Section
-            Text(
-                text = "Account",
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Button(
-                onClick = onLogoutClick,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error
+            Card(
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = colorResource(R.color.background_card)
                 ),
-                modifier = Modifier.fillMaxWidth()
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
-                Text("Logout")
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+
+                    Text(
+                        text = "Account",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = colorResource(R.color.primary_dark_navy)
+                    )
+
+                    Button(
+                        onClick = onLogoutClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colorResource(R.color.error_red),
+                            contentColor = colorResource(R.color.text_white)
+                        )
+                    ) {
+                        Text("Logout")
+                    }
+                }
             }
         }
     }
 }
+
 @Preview(showBackground = true)
 @Composable
 fun SettingsScreenPreview() {
