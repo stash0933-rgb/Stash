@@ -52,7 +52,6 @@ class AppViewModel(
     }
 
     suspend fun getBiometricEnabledSuspend(): Boolean {
-        // Read directly from Repo Flow to ensure we get the disk value, not StateFlow initial value
         return repo.getBiometricEnabled().first()
     }
 

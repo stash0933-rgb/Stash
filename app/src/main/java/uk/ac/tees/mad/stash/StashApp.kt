@@ -23,7 +23,7 @@ class StashApp : Application() {
             applicationContext,
             AppDatabase::class.java,
             "stash_db"
-        ).build()
+        ).fallbackToDestructiveMigration().build()
 
         preferencesManager = PreferencesManager(applicationContext)
     }

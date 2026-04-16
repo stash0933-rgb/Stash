@@ -7,6 +7,7 @@ import androidx.room.PrimaryKey
 data class RecordEntity(
     @PrimaryKey
     val recordID: String,
+    val userId: String,
     val title: String,
     val value: String
 )

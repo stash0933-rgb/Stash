@@ -115,6 +115,7 @@ class RepoImpl : Repo {
                     recordDao.insert(
                         RecordEntity(
                             recordID = newRecord.recordID,
+                            userId = uid,
                             title = newRecord.title,
                             value = newRecord.value
                         )
@@ -161,6 +162,7 @@ class RepoImpl : Repo {
                         records.map {
                             RecordEntity(
                                 recordID = it.recordID,
+                                userId = uid,
                                 title = it.title,
                                 value = it.value
                             )
@@ -171,7 +173,7 @@ class RepoImpl : Repo {
 
         // 🔥 Room drives UI
         ioScope.launch {
-            recordDao.getAllRecords().collectLatest { entities ->
+            recordDao.getAllRecords(uid).collectLatest { entities ->
                 val models = entities.map {
                     RecordModel(
                         recordID = it.recordID,
@@ -214,6 +216,7 @@ class RepoImpl : Repo {
                     recordDao.update(
                         RecordEntity(
                             recordID = record.recordID,
+                            userId = uid,
                             title = record.title,
                             value = record.value
                         )
@@ -263,7 +266,13 @@ class RepoImpl : Repo {
 
     override fun getRecordById(recordID: String): Flow<ResultState<RecordModel>> {
         return callbackFlow {
-            val entity = recordDao.getById(recordID)
+            val uid = auth.currentUser?.uid ?: run {
+                trySend(ResultState.error("User not logged in"))
+                close()
+                return@callbackFlow
+            }
+
+            val entity = recordDao.getById(recordID, uid)
             if (entity != null) {
                 trySend(
                     ResultState.Succes(
@@ -286,6 +295,9 @@ class RepoImpl : Repo {
     }
     override fun logoutUser() {
         auth.signOut()
+        ioScope.launch {
+            recordDao.clearAll()
+        }
     }
 
     // ---------------- PREFERENCES ----------------

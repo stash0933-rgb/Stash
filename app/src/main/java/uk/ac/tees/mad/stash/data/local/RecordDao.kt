@@ -18,9 +18,12 @@ interface RecordDao {
     @Query("DELETE FROM records WHERE recordID = :id")
     suspend fun deleteById(id: String)
 
-    @Query("SELECT * FROM records")
-    fun getAllRecords(): Flow<List<RecordEntity>>
+    @Query("SELECT * FROM records WHERE userId = :userId")
+    fun getAllRecords(userId: String): Flow<List<RecordEntity>>
+    
+    @Query("SELECT * FROM records WHERE recordID = :id AND userId = :userId")
+    suspend fun getById(id: String, userId: String): RecordEntity?
 
-    @Query("SELECT * FROM records WHERE recordID = :id")
-    suspend fun getById(id: String): RecordEntity?
+    @Query("DELETE FROM records")
+    suspend fun clearAll()
 }
